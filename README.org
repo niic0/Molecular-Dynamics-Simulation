@@ -54,6 +54,5 @@ gnuplot script/plot_data.gnu
 #+end_src
 
 * fo fer
-- TODO 
 - TODO Doxygen
 - TODO Parralléliser le code
