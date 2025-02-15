@@ -53,6 +53,7 @@ gnuplot script/plot_data.gnu
     └── utils.cpp
 #+end_src
 
-* TODO Que ça marche LOL
-* TODO Doxygen
-* TODO Parrallel code
+* fo fer
+- TODO 
+- TODO Doxygen
+- TODO Parralléliser le code
