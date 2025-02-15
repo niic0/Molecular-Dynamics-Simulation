@@ -1,19 +1,19 @@
 #include <chrono>
 #include <ctime>
 
-#include "include/parameters.h"
 #include "include/types.h"
 #include "include/simulation.h"
 #include "include/utils.h"
 
 
-int main() {
-  std::string input_particule_file_path = "../input/particule.xyz";
-  u32 step = 100;
+int main(int argc, char* argv[]) {
+  SimulationParameters params;
+
+  parse_command_line_arguments(argc, argv, params);
 
   // Start - stop timer and execute the molecular dynamic simulation
   auto start = std::chrono::system_clock::now();
-  Particles p = molecular_simulation(input_particule_file_path, step);
+  Particles p = molecular_simulation(params);
   auto end = std::chrono::system_clock::now();
 
   // Variables to display
@@ -22,21 +22,21 @@ int main() {
   f64 U_total, total_energy;
   f64 total_momentum;
   std::chrono::duration<double> elapsed_seconds = end - start;
+  bool boundary_conditions = true;
 
   // Compute variable to display
-  compute_sum_forces(p, totalFx, totalFy, totalFz);
-  compute_kinetic_energy(p, kinetic_energy);
-  compute_kinetic_temperature_energy(kinetic_energy, final_temperature);
-  compute_potential_energy(p, U_total);
+  compute_sum_forces(p, totalFx, totalFy, totalFz, params.num_particles);
+  compute_kinetic_energy(p, kinetic_energy, params.num_particles, params.mass);
+  compute_kinetic_temperature_energy(kinetic_energy, params.num_particles, final_temperature);
+  compute_potential_energy(p, U_total, params.periodic_images, params.num_particles, params.cutoff);
   compute_total_energy(U_total, kinetic_energy, total_energy);
-  compute_sum_forces(p, totalFx, totalFy, totalFz);
-  compute_total_momentum(p, total_momentum);
+  compute_total_momentum(p, total_momentum, params.num_particles, params.mass);
 
   // Display variables
-  display_simulation_summary(N_particules_total, L, true, 1,
-                                  elapsed_seconds.count(), 1, final_temperature,
-                                  kinetic_energy, U_total, total_energy,
-                                  totalFx, totalFy, totalFz, total_momentum);
+  display_simulation_summary(boundary_conditions, elapsed_seconds.count(), 1,
+                             final_temperature, kinetic_energy, U_total,
+                             total_energy, totalFx, totalFy, totalFz,
+                             total_momentum, params);
 
   return 0;
 }

@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -5,12 +6,12 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <getopt.h>
 
 #include "../include/types.h"
-#include "../include/parameters.h"
 
 
-void parseParticuleFile(Particles& particules, const std::string &filename, int N_particules_total) {
+void parseParticuleFile(Particles& particules, const std::string &filename, int N) {
   std::string line;
   std::ifstream particules_file(filename);
   u32 i = 0;
@@ -21,9 +22,9 @@ void parseParticuleFile(Particles& particules, const std::string &filename, int 
 
   // Ignore first line
   std::getline(particules_file, line);
-    
+
   if (particules_file.is_open()) {
-    while (std::getline(particules_file, line) || i < N_particules_total) {
+    while (std::getline(particules_file, line) && i < N) {
       std::istringstream lineStream(line);
       int ignore;
 
@@ -53,6 +54,117 @@ void parseParticuleFile(Particles& particules, const std::string &filename, int 
 
   else
     std::cout << "Unable to open file";
+}
+
+void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &params) {
+  const struct option long_options[] = {
+      {"steps", required_argument, nullptr, 'n'},
+      {"timestep", required_argument, nullptr, 'd'},
+      {"dt", required_argument, nullptr, 'd'},
+      {"temperature", required_argument, nullptr, 'T'},
+      {"input", required_argument, nullptr, 'i'},
+      {"output", required_argument, nullptr, 'o'},
+      {"cutoff", required_argument, nullptr, 'r'},
+      {"rc", required_argument, nullptr, 'r'},
+      {"boxsize", required_argument, nullptr, 'L'},
+      {"mass", required_argument, nullptr, 'm'},
+      {"relaxationtime", required_argument, nullptr, 't'},
+      {"tau", required_argument, nullptr, 't'},
+      {"particles", required_argument, nullptr, 'N'},
+      {"seed", required_argument, nullptr, 's'},
+      {"help", no_argument, nullptr, 'h'},
+      {nullptr, 0, nullptr, 0} // Fin des options
+  };
+
+  int opt;
+  while ((opt = getopt_long(argc, argv, "n:d:T:i:o:r:L:m:t:N:s:h", long_options, nullptr)) != -1) {
+    switch (opt) {
+    case 'n':
+      params.steps = std::stoi(optarg);
+      break;
+    case 'd':
+      params.dt = std::stod(optarg);
+      break;
+    case 'T':
+      params.temperature = std::stod(optarg);
+      break;
+    case 'i':
+      params.input_file = optarg;
+      break;
+    case 'o':
+      params.output_file = optarg;
+      break;
+    case 'r':
+      params.cutoff = std::stod(optarg);
+      break;
+    case 'L': {
+      params.box_size = std::stod(optarg);
+      const float L = params.box_size;
+      const std::vector<Vec3> periodic_images = {
+          {0, 0, 0},  {-L, -L, 0}, {-L, -L, L}, {-L, 0, -L},  {-L, 0, 0},
+          {-L, 0, L}, {-L, L, -L}, {-L, L, 0},  {-L, L, L},   {0, -L, -L},
+          {0, -L, 0}, {0, -L, L},  {0, 0, -L},  {-L, -L, -L}, {0, 0, L},
+          {0, L, -L}, {0, L, 0},   {0, L, L},   {L, -L, -L},  {L, -L, 0},
+          {L, -L, L}, {L, 0, -L},  {L, 0, 0},   {L, 0, L},    {L, L, -L},
+          {L, L, 0},  {L, L, L}};
+    } break;
+    case 'm':
+      params.mass = std::stod(optarg);
+      break;
+    case 't':
+      params.relaxation_time = std::stod(optarg);
+      break;
+    case 'N': {
+      params.num_particles = std::stoi(optarg);
+
+      if(params.num_particles > 1000) {
+        std::cout << " The number of particles can't be greater than 1000 !" << std::endl;
+        std::cout << "  -> You executed " << argv[0] << " -N " << params.num_particles << std::endl;
+        exit(0);
+      }
+    } break;
+    case 's':
+      params.seed = std::stoi(optarg);
+      break;
+    case 'h':
+      std::cout
+          << "Usage: " << argv[0] << " [options]\n"
+          << "Options:\n"
+          << "  -n, --steps <value>        Number of time steps (default: "
+          << params.steps << ")\n"
+          << "  -dt, --timestep <value>    Time step size (default: "
+          << params.dt << ")\n"
+          << "  -T, --temperature <value>  Target temperature (default: "
+          << params.temperature << ")\n"
+          << "  -i, --input <file>         Input file with initial particle "
+             "positions (default: "
+          << params.input_file << ")\n"
+          << "  -o, --output <file>        Output file for results (default: "
+          << params.output_file << ")\n"
+          << "                             Example for creating "
+             "../out/ex_output.csv and ./out/ex_output.pdb:\n"
+          << "                             " << argv[0] << "-o ex_output" << "\n"
+          << "  -rc, --cutoff <value>      Cutoff distance for Lennard-Jones "
+             "potential (default:"
+          << params.cutoff << ")\n"
+          << "  -L, --boxsize <value>      Simulation box size (default: "
+          << params.box_size << ")\n"
+          << "  -m, --mass <value>         Particle mass (default: "
+          << params.mass << ")\n"
+          << "  -tau, --relaxationtime <value>  Thermostat relaxation time "
+             "(default: "
+          << params.relaxation_time << ")\n"
+          << "  -N, --particles <value>    Number of particles (default: "
+          << params.num_particles << ")\n"
+          << "  -s, --seed <value>         Random seed (default: "
+          << params.seed << ")\n"
+          << "  -h, --help                 Display this help message\n";
+      exit(0);
+    default:
+      std::cerr << "Invalid option. Use -h or --help for usage information.\n";
+      exit(1);
+    }
+  }
 }
 
 /**
@@ -105,7 +217,7 @@ void create_pdb_file(const std::string filename) {
  */
 void append_pdb(const std::string &filename,
                 const Particles &particles, int iteration,
-                f64 box_size) {
+                f64 box_size, u32 N) {
     // Open file in append mode
     std::ofstream file(filename, std::ios::app);
     if (!file) {
@@ -122,7 +234,7 @@ void append_pdb(const std::string &filename,
     file << "MODEL " << std::setw(8) << iteration << "\n";
 
     // 🔹 Write carbon atom data (ATOM records)
-    for (size_t i = 0; i < N_particules_total; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         file << "ATOM  "
              << std::setw(5) << (i + 1)  // Atom serial number (1-based index)
              << "  C               "     // Atom name (C for carbon, no residue)
@@ -170,11 +282,8 @@ void append_csv(const std::string filename, f64 time, f64 temperature, f64 kinet
 /**
  * @brief Displays a summary of the Molecular Dynamics simulation results.
  *
- * @param num_particles Total number of particles in the simulation.
- * @param box_size Simulation box dimensions (assuming cubic box).
  * @param boundary_conditions Indicates whether periodic boundary conditions
  * (PBC) are used.
- * @param dt Time step (in femtoseconds).
  * @param total_simulation_time Total elapsed simulation time (in picoseconds).
  * @param computation_time Total computation time (in seconds).
  * @param num_threads Number of OpenMP threads used.
@@ -185,34 +294,38 @@ void append_csv(const std::string filename, f64 time, f64 temperature, f64 kinet
  * @param sum_forces Magnitude of the sum of all forces (should be close to 0).
  * @param total_momentum Magnitude of total system momentum (should be close to
  * 0).
+ * @param params Give some informations like the number of particules, steps, box 
+ * size and dt.
  */
-void display_simulation_summary(int num_particles, f64 box_size,
-                                bool boundary_conditions, f64 dt,
+void display_simulation_summary(bool boundary_conditions,
                                 f64 total_simulation_time, int num_threads,
                                 f64 final_temperature, f64 kinetic_energy,
                                 f64 potential_energy, f64 total_energy,
-                                f64 totalFx, f64 totalFy, f64 totalFz, f64 total_momentum) {
-
+                                f64 totalFx, f64 totalFy, f64 totalFz,
+                                f64 total_momentum,
+                                SimulationParameters params) {
   std::cout << std::endl << "===========================================" << std::endl;
   std::cout << " Molecular Dynamics Simulation Summary " << std::endl;
   std::cout << "===========================================" << std::endl;
 
   // 🔹 System Properties
-  std::cout << " 🔹 Number of particles        : " << num_particles << std::endl;
-  std::cout << " 🔹 Simulation box size (Lx, Ly, Lz) : (" << box_size << ", "
-            << box_size << ", " << box_size << ")" << std::endl;
+  std::cout << " 🔹 Number of particles        : " << params.num_particles << std::endl;
+  std::cout << " 🔹 Steps                      : " << params.steps << std::endl;
+  std::cout << " 🔹 Simulation box size (L)    : " << params.box_size << "^3" << std::endl;
   std::cout << " 🔹 Boundary conditions        : "
             << (boundary_conditions ? "Periodic (27)" : "None") << std::endl;
-  std::cout << " 🔹 Time step (dt)             : " << dt << " fs" << std::endl;
+  std::cout << " 🔹 Time step (dt)             : " << params.dt << " fs" << std::endl;
   std::cout << " 🔹 Total simulation time      : " << total_simulation_time
             << " sec" << std::endl;
+  std::cout << " 🔹 Total simulation time/step : "
+            << total_simulation_time / params.steps << " sec" << std::endl;
   std::cout << " 🔹 Number of threads (OMP)    : " << num_threads << std::endl;  
 
   // Thermodynamic Properties
   std::cout << std::endl << " \e[1mThermodynamic Properties:\e[0m" << std::endl;
   std::cout << " 🔹 Final temperature (Tfinal) : " << final_temperature << " K"
             << std::setw(8) << YELLOW
-            << (final_temperature > 400 ? "(!! So HOT)" : "")
+            << (final_temperature > 1000 ? "(!! So HOT)" : "")
             << RESET << std::endl;
   std::cout << " 🔹 Kinetic energy (Ek)        : " << kinetic_energy << std::endl;
   std::cout << " 🔹 Potential energy (Ep)      : " << potential_energy << std::endl;

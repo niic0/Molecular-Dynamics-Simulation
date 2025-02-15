@@ -1,6 +1,6 @@
 * Molecular Dynamics Simulation
 ** Introduction
-This project implements a *Molecular Dynamics (MD)* simulation using the Lennard-Jones potential to model interactions between particles. It includes *periodic boundary conditions* (PBCs), *cutoff radius optimizations*, and integrates *Velocity Verlet* for time evolution. 
+This project implements a *Molecular Dynamics (MD)* simulation using the Lennard-Jones potential to model interactions between particles. It includes *periodic boundary conditions* (PBCs), *cutoff radius optimizations*, and integrates *Velocity Verlet* for time evolution. A CSV and PDB output are produced in the out directory.
 
 The project is compiled using *Ninja and CMake* so compilation goes brrrrrrrrr.
 
@@ -56,3 +56,4 @@ gnuplot script/plot_data.gnu
 * fo fer
 - TODO Doxygen
 - TODO Parralléliser le code
+- TODO Correction de la fonction ~void compute_potential_energy(Particles& p, f64& U_total)~
