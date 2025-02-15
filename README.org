@@ -1,0 +1,59 @@
+* Molecular Dynamics Simulation with bros Lennard-Jones
+** Introduction
+This project implements a *Molecular Dynamics (MD)* simulation using the Lennard-Jones potential to model interactions between particles. It includes *periodic boundary conditions* (PBCs), *cutoff radius optimizations*, and integrates *Velocity Verlet* for time evolution. 
+
+The project is compiled using *Ninja and CMake* so compilation goes brrrrrrrrr.
+
+*/!\ For educational purposes only. Some elements may be visually disturbing, and exposure to certain code may cause irreversible eye damage. /!\*
+
+** Build instructions
+Requirements are in the CMakeLists.txt. You can chose the configuration you want.
+
+#+begin_src bash
+cmake --build . --config Release # -O3 -march=native
+cmake --build . --config Debug   # -O0
+#+end_src
+
+Then just ninja it.
+
+#+begin_src bash
+$ ninja
+#+end_src
+
+You can also plot Temperature and kinetic energy. The command will create an png plot file.
+
+#+begin_src bash
+gnuplot script/plot_data.gnu
+#+end_src
+
+** Project organisation
+#+begin_src bash
+├── main.cpp
+├── README.org
+├── CMakeLists.txt
+├── include
+│   ├── parameters.h
+│   ├── simulation.h
+│   ├── types.h
+│   └── utils.h
+├── input
+│   └── particule.xyz
+├── out
+│   ├── particules_data.csv
+│   └── particules_data.pdb
+├── build
+│   ├── build.ninja
+│   ├── CMakeCache.txt
+│   ├── CMakeFiles
+│   │   ├── ...
+├── script
+│   ├── plot_data.gnu
+└── src
+    ├── simulation.cpp
+    └── utils.cpp
+#+end_src
+
+* TODO 
+- TODO Que ça marche LOL
+- TODO Doxygen
+- TODO Parralléliser le code
