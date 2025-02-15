@@ -1,4 +1,4 @@
-* Molecular Dynamics Simulation with bros Lennard-Jones
+* Molecular Dynamics Simulation
 ** Introduction
 This project implements a *Molecular Dynamics (MD)* simulation using the Lennard-Jones potential to model interactions between particles. It includes *periodic boundary conditions* (PBCs), *cutoff radius optimizations*, and integrates *Velocity Verlet* for time evolution. 
 
@@ -17,7 +17,7 @@ cmake --build . --config Debug   # -O0
 Then just ninja it.
 
 #+begin_src bash
-$ ninja
+ninja
 #+end_src
 
 You can also plot Temperature and kinetic energy. The command will create an png plot file.
@@ -53,7 +53,7 @@ gnuplot script/plot_data.gnu
     └── utils.cpp
 #+end_src
 
-* TODO 
+** TODO 
 - TODO Que ça marche LOL
 - TODO Doxygen
 - TODO Parralléliser le code
