@@ -46,9 +46,10 @@ struct SimulationParameters {
     f64 temperature = 300.0;           // Température cible (-T)
     std::string input_file = "../input/particule.xyz";  // Fichier d'entrée (-i)
     std::string output_file = "output_data";     // Fichier de sortie (-o)
-    f64 cutoff = 10;                  // Distance de coupure (-rc)
+    f64 cutoff = 10;                   // Distance de coupure (-rc)
     f64 box_size = 42.0;               // Taille de la boîte de simulation (-L)
-    f64 mass = 18.0;                    // Masse des particules (-m)
+    f64 mass = 18.0;                   // Masse des particules (-m)
+    u32 N_sym = 27;                    // Periodic boundary conditions (with 27, without, 1) (-p)
     u32 relaxation_time = 3;           // Temps de relaxation du thermostat (-tau)
     u32 num_particles = 1000;          // Nombre de particules (-N)
     int seed = 420;                     // Graine aléatoire (-s)
@@ -93,6 +94,7 @@ struct SimulationParameters {
 #define MAGENTA "\033[35m"      /* Magenta */
 #define CYAN    "\033[36m"      /* Cyan */
 #define WHITE   "\033[37m"      /* White */
+#define BOLD        "\033[1m"              /* Just Bold*/
 #define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
 #define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
 #define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */

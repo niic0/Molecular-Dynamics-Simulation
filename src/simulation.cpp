@@ -53,6 +53,7 @@ Particles molecular_simulation(SimulationParameters params) {
   f64 dt = params.dt;
   std::vector<Vec3> periodic_images = params.periodic_images;
   f64 R_cut_squared = params.cutoff * params.cutoff;
+  u32 N_sym = params.N_sym;
 
   // Variables to store kinetic energy and temperature during the simulation
   f64 kinetic_energy, current_temperature;
@@ -81,7 +82,7 @@ Particles molecular_simulation(SimulationParameters params) {
     append_pdb(pdb_output_filename, p, i, box_size, N);
 
     // Perform one step of the Velocity Verlet algorithm
-    compute_velocity_verlet(p, N, dt, mass, periodic_images, R_cut_squared);
+    compute_velocity_verlet(p, N, dt, mass, periodic_images, R_cut_squared, N_sym);
 
     // Apply the Berendsen thermostat periodically to maintain the target
     // temperature
@@ -124,7 +125,7 @@ Particles molecular_simulation(SimulationParameters params) {
  *       where sigma is the distance at which the potential is zero, and epsilon is the depth of the potential well.
  * @note The cutoff distance is used to ignore interactions beyond a certain range for efficiency.
  */
-void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3> periodic_images, f64 R_cut_squared) {
+void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3> periodic_images, f64 R_cut_squared, u32 N_sym) {
   for (u32 i_sym = 0; i_sym < N_sym; i_sym++) {
     for (u32 i = 0; i < N; i++) {
       for (u32 j = i + 1; j < N; j++) {
@@ -198,7 +199,7 @@ void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3> periodic_images, 
  */
 void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
                              std::vector<Vec3> periodic_images,
-                             f64 R_cut_squared) {
+                             f64 R_cut_squared, u32 N_sym) {
   const f64 mass_inv = 1 / mass;
 
   // Intermediate update of momentum (p = p - 0.5 * F * dt)
@@ -223,7 +224,7 @@ void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
   }
 
   // Compute forces with Lennard-Jones potential at the new positions (t + dt)
-  compute_forces_pbc(p, N, periodic_images, R_cut_squared);
+  compute_forces_pbc(p, N, periodic_images, R_cut_squared, N_sym);
 
   // Final update of momentum (p = p - 0.5 * F * dt)
   for(u32 i = 0; i<N; i++) {
@@ -262,7 +263,7 @@ void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
  */
 void compute_potential_energy(Particles &p, f64 &U_total,
                               std::vector<Vec3>& periodic_images, u32 N,
-                              f64 R_cut_squared) {
+                              f64 R_cut_squared, u32 N_sym) {
   U_total = 0.0;
 
   for (u32 i_sym = 0; i_sym < N_sym; i_sym++) {

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -65,6 +66,7 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
       {"input", required_argument, nullptr, 'i'},
       {"output", required_argument, nullptr, 'o'},
       {"cutoff", required_argument, nullptr, 'r'},
+      {"periodic", required_argument, nullptr, 'p'},
       {"rc", required_argument, nullptr, 'r'},
       {"boxsize", required_argument, nullptr, 'L'},
       {"mass", required_argument, nullptr, 'm'},
@@ -77,7 +79,7 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
   };
 
   int opt;
-  while ((opt = getopt_long(argc, argv, "n:d:T:i:o:r:L:m:t:N:s:h", long_options, nullptr)) != -1) {
+  while ((opt = getopt_long(argc, argv, "n:d:T:i:o:r:L:m:t:N:s:p:h", long_options, nullptr)) != -1) {
     switch (opt) {
     case 'n':
       params.steps = std::stoi(optarg);
@@ -93,6 +95,19 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
       break;
     case 'o':
       params.output_file = optarg;
+      break;
+    case 'p':
+      if (std::stod(optarg) == 1) {
+        params.N_sym = 27;
+      } else if (std::stod(optarg) == 0) {
+        params.N_sym = 1;
+      } else {
+        std::cerr << " Wrong periodic argument, must be 1 or 0." << std::endl;
+        std::cerr << "  -> 1 means you want to run the simulation " << BOLD << "with" << RESET << " periodic boundary conditions" << std::endl;
+        std::cerr << "  -> 0 means you want to run the simulation " << BOLD << "without" << RESET <<  " periodic boundary conditions" << std::endl;
+
+        exit(1);
+      }
       break;
     case 'r':
       params.cutoff = std::stod(optarg);
@@ -118,8 +133,8 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
       params.num_particles = std::stoi(optarg);
 
       if(params.num_particles > 1000) {
-        std::cout << " The number of particles can't be greater than 1000 !" << std::endl;
-        std::cout << "  -> You executed " << argv[0] << " -N " << params.num_particles << std::endl;
+        std::cerr << " The number of particles can't be greater than 1000 !" << std::endl;
+        std::cerr << "  -> You executed " << argv[0] << " -N " << params.num_particles << std::endl;
         exit(0);
       }
     } break;
@@ -136,6 +151,8 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
           << params.dt << ")\n"
           << "  -T, --temperature <value>  Target temperature (default: "
           << params.temperature << ")\n"
+          << "  -p, --periodic <value>     Periodic boundart conditions (0 or 1) (default: 1"
+           << ")\n"
           << "  -i, --input <file>         Input file with initial particle "
              "positions (default: "
           << params.input_file << ")\n"
