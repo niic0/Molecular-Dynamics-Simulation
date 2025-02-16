@@ -143,7 +143,7 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
           << params.output_file << ")\n"
           << "                             Example for creating "
              "../out/ex_output.csv and ./out/ex_output.pdb:\n"
-          << "                             " << argv[0] << "-o ex_output" << "\n"
+          << "                             " << argv[0] << " -o ex_output" << "\n"
           << "  -rc, --cutoff <value>      Cutoff distance for Lennard-Jones "
              "potential (default:"
           << params.cutoff << ")\n"
