@@ -7,7 +7,7 @@
 Particles molecular_simulation(SimulationParameters params);
 
 void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
-                             std::vector<Vec3> periodic_images,
+                             std::vector<Vec3>& periodic_images,
                              f64 R_cut_squared, u32 N_sym);
 
 void compute_kinetic_energy(Particles& p, f64& kinetic_energy, u32 N, f64 mass);

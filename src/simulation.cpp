@@ -125,7 +125,7 @@ Particles molecular_simulation(SimulationParameters params) {
  *       where sigma is the distance at which the potential is zero, and epsilon is the depth of the potential well.
  * @note The cutoff distance is used to ignore interactions beyond a certain range for efficiency.
  */
-void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3> periodic_images, f64 R_cut_squared, u32 N_sym) {
+void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3>& periodic_images, f64 R_cut_squared, u32 N_sym) {
   for (u32 i_sym = 0; i_sym < N_sym; i_sym++) {
     for (u32 i = 0; i < N; i++) {
       for (u32 j = i + 1; j < N; j++) {
@@ -198,7 +198,7 @@ void compute_forces_pbc(Particles &p, u32 N, std::vector<Vec3> periodic_images, 
  * accumulating contributions from previous steps.
  */
 void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
-                             std::vector<Vec3> periodic_images,
+                             std::vector<Vec3>& periodic_images,
                              f64 R_cut_squared, u32 N_sym) {
   const f64 mass_inv = 1 / mass;
 

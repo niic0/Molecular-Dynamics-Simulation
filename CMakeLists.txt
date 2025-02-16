@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # 🔹 Compilation flags for different build types
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g3 -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -g3 -march=native")
 
 # 🔹 Include the header directory
 include_directories(include)
