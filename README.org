@@ -10,13 +10,15 @@ The project is compiled using *Ninja and CMake* so compilation goes brrrrrrrrr.
 Requirements are in the CMakeLists.txt. You can chose the configuration you want.
 
 #+begin_src bash
-cmake --build . --config Release # -O3 -march=native
-cmake --build . --config Debug   # -O0
+mkdir build
+cmake --build .. --config Release # -O3 -march=native
+cmake --build .. --config Debug   # -O0
 #+end_src
 
 Then just ninja it.
 
 #+begin_src bash
+# In the build directory
 ninja
 #+end_src
 
@@ -24,6 +26,26 @@ You can also plot Temperature and kinetic energy. The command will create an png
 
 #+begin_src bash
 gnuplot script/plot_data.gnu
+#+end_src
+
+** Usage
+#+begin_src bash
+Usage: ./simulation [options]
+Options:
+  -n, --steps <value>        Number of time steps (default: 1000)
+  -dt, --timestep <value>    Time step size (default: 1)
+  -T, --temperature <value>  Target temperature (default: 300)
+  -i, --input <file>         Input file with initial particle positions (default: ../input/particule.xyz)
+  -o, --output <file>        Output file for results (default: ../out/output_data.csv)
+                             Example for creating ../out/ex_output.csv and ./out/ex_output.pdb:
+                             ./simulation -o ex_output
+  -rc, --cutoff <value>      Cutoff distance for Lennard-Jones potential (default:10)
+  -L, --boxsize <value>      Simulation box size (default: 42)
+  -m, --mass <value>         Particle mass (default: 18)
+  -tau, --relaxationtime <value>  Thermostat relaxation time (default: 3)
+  -N, --particles <value>    Number of particles (default: 1000)
+  -s, --seed <value>         Random seed (default: 420)
+  -h, --help                 Display this help message
 #+end_src
 
 ** Project organisation
@@ -41,11 +63,6 @@ gnuplot script/plot_data.gnu
 ├── out
 │   ├── particules_data.csv
 │   └── particules_data.pdb
-├── build
-│   ├── build.ninja
-│   ├── CMakeCache.txt
-│   ├── CMakeFiles
-│   │   ├── ...
 ├── script
 │   ├── plot_data.gnu
 └── src
