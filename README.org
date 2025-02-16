@@ -67,8 +67,3 @@ Options:
     ├── simulation.cpp
     └── utils.cpp
 #+end_src
-
-* fo fer
-- TODO Doxygen
-- TODO Parralléliser le code
-- TODO Correction de la fonction ~void compute_potential_energy(Particles& p, f64& U_total)~
