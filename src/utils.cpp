@@ -330,9 +330,7 @@ void display_simulation_summary(bool boundary_conditions,
             << RESET << std::endl;
   std::cout << " 🔹 Kinetic energy (Ek)        : " << kinetic_energy << std::endl;
   std::cout << " 🔹 Potential energy (Ep)      : " << potential_energy << std::endl;
-  std::cout << " 🔹 Total energy (Etot)        : " << total_energy << std::setw(10) << YELLOW
-            << (std::abs(total_energy) < 1e-3 ? "Stable" : "(!! Possible Drift)")
-            << RESET << std::endl;
+  std::cout << " 🔹 Total energy (Etot)        : " << total_energy << std::endl;
 
   // Forces & Momentum
   std::cout << std::endl << " \e[1mForces & Momentum:\e[0m" << std::endl;

@@ -45,7 +45,7 @@ struct SimulationParameters {
     f64 dt = 1;                        // Pas de temps (-dt)
     f64 temperature = 300.0;           // Température cible (-T)
     std::string input_file = "../input/particule.xyz";  // Fichier d'entrée (-i)
-    std::string output_file = "../out/output_data.csv";     // Fichier de sortie (-o)
+    std::string output_file = "output_data";     // Fichier de sortie (-o)
     f64 cutoff = 10;                  // Distance de coupure (-rc)
     f64 box_size = 42.0;               // Taille de la boîte de simulation (-L)
     f64 mass = 18.0;                    // Masse des particules (-m)

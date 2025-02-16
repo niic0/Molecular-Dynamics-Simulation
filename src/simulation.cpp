@@ -252,7 +252,7 @@ void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
  * @param R_cut_squared Squared cutoff distance for the Lennard-Jones potential.
  *
  * @note The Lennard-Jones potential is computed as:
- *       U(r) = -48 * epsilon * [(r_star/r)^14 - (r_star/r)^8]
+ *       U(r) = 4 * epsilon * [(r_star/r)^12 - (r_star/r)^6]
  *       where r_star is the distance at which the potential is zero, and
  * epsilon is the depth of the potential well.
  * @note The function ensures that the distance between particles is non-zero to
@@ -261,11 +261,9 @@ void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
  * range for efficiency.
  */
 void compute_potential_energy(Particles &p, f64 &U_total,
-                              std::vector<Vec3> periodic_images, u32 N,
+                              std::vector<Vec3>& periodic_images, u32 N,
                               f64 R_cut_squared) {
-  f64 U_lj;
-
-  U_total = 0, U_lj = 0;
+  U_total = 0.0;
 
   for (u32 i_sym = 0; i_sym < N_sym; i_sym++) {
     for (u32 i = 0; i < N; i++) {
@@ -282,7 +280,7 @@ void compute_potential_energy(Particles &p, f64 &U_total,
         f64 rij_squared = dx * dx + dy * dy + dz * dz;
 
         // Prevent Division by 0
-        assert(rij_squared != 0 && "Division by 0");
+        // assert(rij_squared != 0 && "Division by 0");
         f64 rij_inv_squared = 1.0 / rij_squared;
 
         if (rij_squared < R_cut_squared) {
@@ -290,12 +288,11 @@ void compute_potential_energy(Particles &p, f64 &U_total,
           f64 potential = r_star_squared * rij_inv_squared; // (r*^2 / rij^2)
           f64 potential2 = potential * potential;           // (r*^2 / rij^2)^2
           f64 potential3 = potential2 * potential;          // (r*^2 / rij^2)^3
-          f64 potential4 = potential2 * potential2;         // (r*^2 / rij^2)^4
-          f64 potential7 = potential4 * potential3;         // (r*^3 / rij^4)^7
+          f64 potential6 = potential3 * potential3;         // (r*^2 / rij^2)^6
 
           // Compute forces
-          f64 grad_inner = potential7 - potential4;
-          f64 U_lj = -48.0 * epsilon * grad_inner;
+          f64 grad_inner = potential6 - (2 * potential3);
+          f64 U_lj = 4.0 * epsilon * grad_inner;
           U_total += U_lj;
         }
       }
@@ -439,8 +436,8 @@ void compute_total_momentum(Particles &p, f64 &totalMomentum, u32 N, f64 mass) {
     Pz += mass * p.mz[i];
   }
 
-  // Compute the total momentum as the sum of the components
-  totalMomentum = Px + Py + Pz;
+  // Compute the total momentum as the norm of thesum of the components
+  totalMomentum = std::sqrt(Px * Px + Py * Py + Pz * Pz);
 }
 
 /**
@@ -494,6 +491,9 @@ void compute_kinetic_energy(Particles& p, f64& kinetic_energy, u32 N, f64 mass) 
  *
  * @note This function assumes that U_total and kinetic_energy have already been
  * computed and provided as inputs.
+ * @warning The total energy can't be used as stability criteria as we use a
+ * Berendsen thermostat ! The Berendsen thermostat modify the position to
+ * correspond to a certain temperature so the total energy is not conserved.
  */
 void compute_total_energy(f64& U_total, f64& kinetic_energy, f64& total_energy) {
   total_energy = U_total + kinetic_energy;
