@@ -10,7 +10,7 @@ The project is compiled using *Ninja and CMake* so compilation goes brrrrrrrrr.
 Requirements are in the CMakeLists.txt. You can chose the configuration you want.
 
 #+begin_src bash
-mkdir build
+mkdir build && cd build
 cmake --build .. --config Release # -O3 -march=native
 cmake --build .. --config Debug   # -O0
 #+end_src

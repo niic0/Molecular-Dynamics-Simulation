@@ -176,7 +176,7 @@ void create_csv_file(const std::string filename) {
 
   // Check if the file already exists
   if (std::filesystem::exists(filename)) {
-    std::cout << "[INFO] The file \"" << filename << "\" already exists and will be erased." << std::endl;
+    std::cout << BLUE << "[INFO] " << RESET << "The file \"" << filename << "\" already exists and will be erased." << std::endl;
   }
 
   std::ofstream file(filename);
@@ -194,7 +194,8 @@ void create_pdb_file(const std::string filename) {
 
   // Check if the file already exists
   if (std::filesystem::exists(filename)) {
-    std::cout << "[INFO] The file \"" << filename << "\" already exists and will be erased." << std::endl;
+    std::cout << BLUE << "[INFO] " << RESET << "The file \"" << filename
+              << "\" already exists and will be erased." << std::endl;
   }
 
   std::ofstream file(filename);
