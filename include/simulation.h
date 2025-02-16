@@ -21,7 +21,7 @@ void compute_forces_pbc_neighbor(Particles &p,
 
 void build_verlet_lists(Particles &p, std::vector<std::vector<u32>> &neighbor,
                         u32 N, std::vector<Vec3> &periodic_images,
-                        f64 R_cut_squared, u32 N_sym, u32 n_max_neighbor);
+                        f64 R_cut_squared, u32 N_sym);
 
 void compute_kinetic_energy(Particles &p, f64 &kinetic_energy, u32 N, f64 mass);
 void compute_kinetic_temperature_energy(f64& kinetic_energy, u32 N, f64& temperature);

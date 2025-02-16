@@ -4,8 +4,6 @@ This project implements a *Molecular Dynamics (MD)* simulation using the Lennard
 
 The project is compiled using *Ninja and CMake* so compilation goes brrrrrrrrr.
 
-*/!\ For educational purposes only. Some elements may be visually disturbing, and exposure to certain code may cause irreversible eye damage. /!\*
-
 ** Build instructions
 Requirements are in the CMakeLists.txt. You can chose the configuration you want.
 

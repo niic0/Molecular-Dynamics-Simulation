@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <omp.h>
-#include <omp.h>
 #include <vector>
 #include <cassert>
 #include <cmath>
@@ -79,7 +78,7 @@ Particles molecular_simulation(SimulationParameters params) {
 
   // Build the verlet (neighbors) list, this list is updated each
   // "relaxation_time"
-  build_verlet_lists(p, neighbor, N, periodic_images, R_cut_squared, N_sym, n_max_neighbor);
+  build_verlet_lists(p, neighbor, N, periodic_images, R_cut_squared, N_sym);
 
   for (u32 i = 0; i < params.steps; i++) {
     // Compute kinetic energy and temperature
@@ -99,8 +98,7 @@ Particles molecular_simulation(SimulationParameters params) {
     if (i % relaxation_time == 0) {
       apply_berendsen_thermostat(p, current_temperature, target_temperature,
                                  params.num_particles);
-      build_verlet_lists(p, neighbor, N, periodic_images, R_cut_squared, N_sym,
-                         n_max_neighbor);
+      build_verlet_lists(p, neighbor, N, periodic_images, R_cut_squared, N_sym);
     }
 
     // Ensure particles remain within the simulation box using periodic boundary
@@ -275,12 +273,13 @@ void compute_velocity_verlet(Particles &p, u32 N, f64 dt, f64 mass,
  */
 void build_verlet_lists(Particles &p, std::vector<std::vector<u32>> &neighbor,
                         u32 N, std::vector<Vec3> &periodic_images,
-                        f64 R_cut_squared, u32 N_sym, u32 n_max_neighbor) {
+                        f64 R_cut_squared, u32 N_sym) {
+#pragma omp parallel for
   for (u32 i = 0; i < N; i++) {
     u32 ni = 0; // Number of neighbors for particle i
     for (u32 j = i+1; j < N; j++) {
-      if (i == j)
-        continue; // Skip self-interaction
+
+#pragma parallel for simd schedule(static)
       for (u32 i_sym = 0; i_sym < N_sym; i_sym++) {
         // Translating particle j position with periodic boundary conditions
         f64 xj_loc = p.x[j] + periodic_images[i_sym].x;
@@ -295,9 +294,8 @@ void build_verlet_lists(Particles &p, std::vector<std::vector<u32>> &neighbor,
 
         // Store the neighbor index and periodic image if under cutoff
         if (rij_squared < R_cut_squared) {
-          u32 mi = 2 * ni + 1;
-          neighbor[i][mi] = j;         // Index of neighbor j
-          neighbor[i][mi+1] = i_sym;   // Periodic image index
+          neighbor[i][2 * ni + 1] = j;         // Index of neighbor j
+          neighbor[i][2 * ni + 2] = i_sym;   // Periodic image index
           ni++;
         }
       }
@@ -333,6 +331,10 @@ void compute_forces_pbc_neighbor(Particles &p, std::vector<std::vector<u32>> &ne
     // Get the number of neighbors for particle i
     u32 ni = neighbor[i][0];
 
+    // Local copies of force accumulations to avoid race conditions
+    f64 fx_i = 0.0, fy_i = 0.0, fz_i = 0.0;
+
+#pragma omp simd reduction(+:fx_i, fy_i, fz_i)
     // Loop over all neighbors of particle i
     for (u32 k = 0; k < ni; k++) {
       // Get the index of the neighbor particle j and its periodic image
@@ -368,14 +370,21 @@ void compute_forces_pbc_neighbor(Particles &p, std::vector<std::vector<u32>> &ne
       f64 fy = common_factor * dy;
       f64 fz = common_factor * dz;
 
+      // Accumulate forces (thread-safe)
+      fx_i += fx;
+      fy_i += fy;
+      fz_i += fz;
+
       // Update forces on particles i and j (Newton's third law)
-      p.fx[i] += fx;
-      p.fy[i] += fy;
-      p.fz[i] += fz;
       p.fx[j] -= fx;
       p.fy[j] -= fy;
       p.fz[j] -= fz;
     }
+
+    // Update forces on particle i after the inner loop
+    p.fx[i] += fx_i;
+    p.fy[i] += fy_i;
+    p.fz[i] += fz_i;
   }
 }
 

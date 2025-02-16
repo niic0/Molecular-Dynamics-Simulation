@@ -127,7 +127,7 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
       params.mass = std::stod(optarg);
       break;
     case 't':
-      params.relaxation_time = std::stod(optarg);
+      params.relaxation_time = std::stoi(optarg);
       break;
     case 'N': {
       params.num_particles = std::stoi(optarg);
@@ -168,7 +168,7 @@ void parse_command_line_arguments(int argc, char *argv[], SimulationParameters &
           << params.box_size << ")\n"
           << "  -m, --mass <value>         Particle mass (default: "
           << params.mass << ")\n"
-          << "  -tau, --relaxationtime <value>  Thermostat relaxation time "
+          << "  -t, --tau, --relaxationtime <value>  Thermostat relaxation time "
              "(default: "
           << params.relaxation_time << ")\n"
           << "  -N, --particles <value>    Number of particles (default: "

@@ -50,7 +50,7 @@ struct SimulationParameters {
     f64 box_size = 42.0;               // Taille de la boîte de simulation (-L)
     f64 mass = 18.0;                   // Masse des particules (-m)
     u32 N_sym = 27;                    // Periodic boundary conditions (with 27, without, 1) (-p)
-    u32 relaxation_time = 3;           // Temps de relaxation du thermostat (-tau)
+    u32 relaxation_time = 5;           // Temps de relaxation du thermostat (-tau)
     u32 num_particles = 1000;          // Nombre de particules (-N)
     int seed = 420;                     // Graine aléatoire (-s)
     std::vector<Vec3> periodic_images = { // periodic images

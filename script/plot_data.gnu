@@ -16,5 +16,5 @@ set grid       # Enable grid
 set datafile separator ","
 
 # Plot the data with two axes
-plot "../out/particules_data.csv" using 1:3 with lines title "Kinetic Energy" lw 2 lc rgb "blue", \
-     "../out/particules_data.csv" using 1:2 axes x1y2 with lines title "Temperature (K)" lw 2 lc rgb "red"
+plot "../out/output_data.csv" using 1:3 with lines title "Kinetic Energy" lw 2 lc rgb "blue", \
+     "../out/output_data.csv" using 1:2 axes x1y2 with lines title "Temperature (K)" lw 2 lc rgb "red"
